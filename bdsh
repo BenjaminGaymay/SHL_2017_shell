@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# >> GLOBALES VARIABLES
+
+HELP="Usage: ./bdsh [OPTION]... [COMMAND] [REQUEST]
+OPTION:
+  -h		display usage
+  -f FILE	json database file
+  -j		json formated output for select command"
+
+# >> JSON BDD Path
+
+BDD_FILE="${BDSH_File}"
+
+if [ -f ".bdshrc" ]; then
+    BDD_FILE="$(cat .bdshrc)"
+fi
+
+
+# >> Functions
+
+function print_error {
+        printf "%s\n" "$1" 1>&2
+        exit 1
+}
+
+function main {
+    case "$1" in
+	"-h") printf "%s\n" "$HELP"
+	      exit 0;;
+	"-f") BDD_FILE="$2"
+	      shift;;
+	"-j") printf "%s\n" "-j";;
+	*) print_error "$HELP";;
+    esac
+    printf "BDD File : %s" "$BDD_FILE"
+}
+
+# >> Initialization
+
+main "$@"
