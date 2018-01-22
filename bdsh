@@ -8,7 +8,7 @@ OPTION:
   -f FILE	json database file
   -j		json formated output for select command"
 
-# >> JSON BDD Path
+# > JSON BDD Path
 
 BDD_FILE="${BDSH_File}"
 
@@ -33,7 +33,6 @@ function main {
 	"-j") printf "%s\n" "-j";;
 	*) print_error "$HELP";;
     esac
-    printf "BDD File : %s" "$BDD_FILE"
 }
 
 # >> Initialization
