@@ -2,6 +2,9 @@
 
 # >> GLOBALES VARIABLES
 
+SUCCESS=0
+FAILURE=1
+
 HELP="Usage: ./bdsh [OPTION]... [COMMAND] [REQUEST]
 OPTION:
   -h		display usage
@@ -16,25 +19,86 @@ if [ -f ".bdshrc" ]; then
     BDD_FILE="$(cat .bdshrc)"
 fi
 
+FILE=""
 
 # >> Functions
 
 function print_error {
-        printf "%s\n" "$1" 1>&2
-        exit 1
+    printf "%s\n" "$1" 1>&2
+    return $FAILURE
+}
+
+function database_in_file {
+        grep -nwF "desc_$1" <"$BDD_FILE" >/dev/null
+        if [ $? == $SUCCESS ]; then
+                return $SUCCESS
+        fi
+        return $FAILURE
+}
+
+function select_db {
+    DATABASE="$1"
+    TABLE="$2"
+    printf "%s - %s" "$DATABASE" "$TABLE"
+}
+
+function describe_db {
+        DATABASE="$1"
+
+        database_in_file "$DATABASE"
+        if [ $? == $FAILURE ]; then
+                return $FAILURE
+        fi
+
+        START="$(grep -nwF "desc_$DATABASE" < $BDD_FILE | cut -d ':' -f1)"
+        LEN="$(expr "$(wc -l < $BDD_FILE | cut -d ' ' -f1)" - $START)"
+        END="$(expr "$(tail -n $LEN < $BDD_FILE | grep -nwF "]" | cut -d ':' -f1 | head -n 1)" - 1)"
+
+        TABLE="$(tail -n $LEN < $BDD_FILE | head -n $END | tr -d ", \"")"
+        printf "%s\n" "$TABLE"
+        return $SUCCESS
+}
+
+function change_bdd_file {
+        if [ -f "$BDD_FILE" ]; then
+                FILE="$(cat $BDD_FILE)"
+                return $SUCCESS
+        else
+                print_error "Error: '$BDD_FILE' doesn't exist."
+                return $FAILURE
+        fi
 }
 
 function main {
-    case "$1" in
-	"-h") printf "%s\n" "$HELP"
-	      exit 0;;
-	"-f") BDD_FILE="$2"
-	      shift;;
-	"-j") printf "%s\n" "-j";;
-	*) print_error "$HELP";;
-    esac
+    while [ $# != 0 ]; do
+        case "$1" in
+            "-h") printf "%s\n" "$HELP"
+                  return $SUCCESS;;
+            "-f") shift
+                  BDD_FILE="$1"
+                  change_bdd_file "$1";;
+            "-j") ;;
+            "select") shift
+                      select_db "$@";;
+            "describe") shift
+                        describe_db "$@";;
+            "insert") shift;;
+            "create") shift;;
+            *) return $(print_error "Error: '$1': Bad argument");;
+        esac
+        if [ $? == $FAILURE ]; then
+                return $FAILURE
+        fi
+        shift
+    done
+
+    return $SUCCESS
 }
 
 # >> Initialization
 
-main "$@"
+if [ $# == 0 ]; then
+        print_error "$HELP"
+else
+        main "$@"
+fi
