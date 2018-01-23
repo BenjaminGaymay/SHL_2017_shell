@@ -5,7 +5,7 @@
 SUCCESS=0
 FAILURE=1
 
-HELP="Usage: ./bdsh [OPTION]... [COMMAND] [REQUEST]
+HELP="Usage: $0 [OPTION]... [COMMAND] [REQUEST]
 OPTION:
   -h		display usage
   -f FILE	json database file
@@ -20,6 +20,7 @@ if [ -f ".bdshrc" ]; then
 fi
 
 FILE=""
+TABLE=""
 
 # >> Functions
 
@@ -28,7 +29,26 @@ function print_error {
     return $FAILURE
 }
 
+function is_readable {
+        if [ -r "$BDD_FILE" ]; then
+                return $SUCCESS
+        fi
+        return $FAILURE
+}
+
+function is_writable {
+        if [ -w "$BDD_FILE" ]; then
+                return $SUCCESS
+        fi
+        return $FAILURE
+}
+
 function database_in_file {
+        is_readable "$BDD_FILE"
+        if [ $? == $FAILURE ]; then
+                return $FAILURE
+        fi
+
         grep -nwF "desc_$1" <"$BDD_FILE" >/dev/null
         if [ $? == $SUCCESS ]; then
                 return $SUCCESS
@@ -60,13 +80,17 @@ function describe_db {
 }
 
 function change_bdd_file {
-        if [ -f "$BDD_FILE" ]; then
-                FILE="$(cat $BDD_FILE)"
-                return $SUCCESS
+        if [ -e "$BDD_FILE" ]; then
+                if [ -f "$BDD_FILE" ]; then
+                        FILE="$(cat $BDD_FILE)"
+                        return $SUCCESS
+                else
+                        print_error "Error: '$BDD_FILE' isn't a regular file."
+                fi
         else
                 print_error "Error: '$BDD_FILE' doesn't exist."
-                return $FAILURE
         fi
+        return $FAILURE
 }
 
 function main {
@@ -84,7 +108,7 @@ function main {
                         describe_db "$@";;
             "insert") shift;;
             "create") shift;;
-            *) return $(print_error "Error: '$1': Bad argument");;
+            *) return "$(print_error "Error: '$1': Bad argument")";;
         esac
         if [ $? == $FAILURE ]; then
                 return $FAILURE
