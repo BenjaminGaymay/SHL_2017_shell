@@ -62,7 +62,12 @@ function database_in_file {
 }
 
 function get_value_from_table {
-    res="$(grep -wF "$1" <<< $DB_VALUE | cut -d ':' -f2 | cat )"
+    res="$(grep -wF -- "$1" <<< $DB_VALUE | cut -d ':' -f2 | cat )"
+    find_db_value "$DATABASE"
+    if [ "$res" == "" ]; then
+            print_error "Error: table '$1' doesn't exist in database '$DATABASE'."
+            return $FAILURE
+    fi
     TABLE_VALUE=()
     nb_lines=0
     for line in $res; do
@@ -81,12 +86,24 @@ function get_value_from_table {
             fi
         let nb_lines++
     done
+    return $SUCCESS
 }
 
 function select_db {
+    if [ "$1" == "" ]; then
+            print_error "$HELP"
+            return $FAILURE
+    fi
     DATABASE="data_$1"
     find_db_value "$DATABASE"
+    if [ $? == $FAILURE ]; then
+            return $FAILURE
+    fi
     tables="$(tr ',' '\n' <<< $2)"
+    if [ "$tables" == "" ]; then
+            print_error "$HELP"
+            return $FAILURE
+    fi
     tables_arr=()
     max_len=()
     i=0
@@ -94,6 +111,9 @@ function select_db {
     first_line=""
     for table in $tables; do
         get_value_from_table "$table"
+        if [ $? == $FAILURE ]; then
+                return $FAILURE
+        fi
         dict_value[$i]=${TABLE_VALUE[*]}
         tables_arr[$i]=$table
         lines[$i]=""
@@ -148,14 +168,20 @@ function select_db {
         line=$(sed 's/¿/ /g' <<< $line)
         printf "%s\n" "$line"
     done
+    return $SUCCESS
 }
 
 function find_db_value {
-    START="$(grep -nwF "$DATABASE" < $BDD_FILE | cut -d ':' -f1)"
+    if [ "$(grep -nwF -- "$DATABASE" < $BDD_FILE)" == "" ]; then
+            print_error "Error: database '$DATABASE' doesn't exist in '$BDD_FILE'."
+            return $FAILURE
+    fi
+    START="$(grep -nwF -- "$DATABASE" < $BDD_FILE | cut -d ':' -f1)"
     LEN="$(expr "$(wc -l < $BDD_FILE | cut -d ' ' -f1)" - $START)"
     END="$(expr "$(tail -n $LEN < $BDD_FILE | grep -nwF "]" | cut -d ':' -f1 | head -n 1)" - 1)"
 
     DB_VALUE="$(tail -n $LEN < $BDD_FILE | head -n $END)"
+    return $SUCCESS
 }
 
 function describe_db {
@@ -176,7 +202,7 @@ function describe_db {
 function change_bdd_file {
     if [ -e "$BDD_FILE" ]; then
         if [ -f "$BDD_FILE" ]; then
-            FILE="$(cat $BDD_FILE)"
+            FILE="$(cat -- $BDD_FILE)"
             return $SUCCESS
         else
             print_error "Error: '$BDD_FILE' isn't a regular file."
@@ -198,6 +224,9 @@ function main {
             "-j") ;;
             "select") shift
                       select_db "$@"
+                      if [ $? == $FAILURE ]; then
+                              return $FAILURE
+                      fi
                       shift
                       if [ "$2" == "order" ]; then
                               shift
