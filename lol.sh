@@ -179,33 +179,62 @@ function change_bdd_file {
 }
 
 function new_db {
-        if [ ! -s "$BDD_FILE" ]; then
+        if [ ! -e "$BDD_FILE" ]; then
                 printf "{\n\t\n}" >> "$BDD_FILE"
+        else
+                print_error "Error: '$BDD_FILE' already exists."
         fi
 }
 
 function create_table_attr {
+        table_name="$1"
+        shift
         arg=$(echo "$1" | tr "," "\n")
+        it=0
         
-        for var in "$arg"
+        for var in $arg
         do
-                FILE=$(sed "/{/a\ \t\""$var"\": [\n\t]" "$BDD_FILE")
-                echo "$var"
+                
+                if [ "$it" == 0 ]; then
+                        FILE=$(sed "/desc_"$table_name"/a\ \t\t\""$var"\"" "$BDD_FILE")
+                else
+                        FILE=$(sed "/desc_"$table_name"/a\ \t\t\""$var"\"\," "$BDD_FILE")
+                fi
+                it=1
+                echo "$FILE" > "$BDD_FILE"
         done
 }
 
+function check_table {
+        cat "$BDD_FILE" | grep -q "$1"
+        if [ $? -eq 0 ]; then
+                print_error "Error: '$1': Table already exist"
+                exit 1
+        fi
+
+}
+
+function is_db_empty {
+        cat "$BDD_FILE" | grep -q desc
+        return "$?"
+}
+
 function new_table {
-        FILE=$(sed "/{/a\ \t\"desc_"$1"\": [\n\t]" "$BDD_FILE")
-        echo "$FILE" > "$BDD_FILE"
-        shift
+        check_table "$1"
+        is_db_empty
+        if [ "$?" -eq 0 ]; then
+                sed -i "/]$/a,\n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+        else
+                sed -i "/{/a\ \t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+        fi
         create_table_attr "$@"
-        
+        exit $?
 }
 
 function create_db {
         while [ $# != 0 ]; do
                 case "$1" in
-                        "database") new_db;;
+                        "database") new_db "$@";;
                         "table") shift
                                 new_table "$@";;
                         *) print_error "Error: 'create': Bad argument"
