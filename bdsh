@@ -74,7 +74,7 @@ function get_value_from_table {
             if [[ ! $tmp =~ ^\".*$ ]]; then
                     let nb_lines--
                     TABLE_VALUE[$nb_lines]=${TABLE_VALUE[$nb_lines]%"\\\\"}
-                    line=$(printf "%s%s" "${TABLE_VALUE[$nb_lines]}" "--$line")
+                    line=$(printf "%s%s" "${TABLE_VALUE[$nb_lines]}" "¿$line")
                     TABLE_VALUE[$nb_lines]=$line'\\'
             else
                     TABLE_VALUE+=($line'\\')
@@ -145,7 +145,7 @@ function select_db {
     fi
     f=0
     for line in "${lines[@]}"; do
-        line=$(sed 's/--/ /g' <<< $line)
+        line=$(sed 's/¿/ /g' <<< $line)
         printf "%s\n" "$line"
     done
 }
