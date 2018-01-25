@@ -190,23 +190,27 @@ function create_table_attr {
         table_name="$1"
         shift
         arg=$(echo "$1" | tr "," "\n")
+        last=0
         it=0
-
         for var in $arg
         do
-
-                if [ "$it" == 0 ]; then
-                        FILE=$(sed "/desc_"$table_name"/a\ \t\t\""$var"\"" "$BDD_FILE")
+                my_array["$it"]="$var"
+                ((it++))
+        done
+        while [ "$it" -ne 0 ]
+        do
+                if [ "$last" == 0 ]; then
+                        sed -i "/desc_"$table_name"/a\ \t\t\""${my_array["$it"-1]}"\"" "$BDD_FILE"
                 else
-                        FILE=$(sed "/desc_"$table_name"/a\ \t\t\""$var"\"\," "$BDD_FILE")
+                        sed -i "/desc_"$table_name"/a\ \t\t\""${my_array["$it"-1]}"\"\," "$BDD_FILE"
                 fi
-                it=1
-                echo "$FILE" > "$BDD_FILE"
+                last=1
+                ((it--))
         done
 }
 
 function check_table {
-        cat "$BDD_FILE" | grep -qwF "$1"
+        cat "$BDD_FILE" | grep -qwF "desc_"$1""
         if [ $? -eq 0 ]; then
                 print_error "Error: '$1': Table already exist"
                 exit 1
@@ -223,7 +227,7 @@ function new_table {
         check_table "$1"
         is_db_empty
         if [ "$?" -eq 0 ]; then
-                sed -i "/]$/a,\n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                sed -i "/]$/c \ \t],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
         else
                 sed -i "/{/a\ \t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
         fi
