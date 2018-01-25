@@ -191,10 +191,10 @@ function create_table_attr {
         shift
         arg=$(echo "$1" | tr "," "\n")
         it=0
-        
+
         for var in $arg
         do
-                
+
                 if [ "$it" == 0 ]; then
                         FILE=$(sed "/desc_"$table_name"/a\ \t\t\""$var"\"" "$BDD_FILE")
                 else
@@ -206,7 +206,7 @@ function create_table_attr {
 }
 
 function check_table {
-        cat "$BDD_FILE" | grep -q "$1"
+        cat "$BDD_FILE" | grep -qwF "$1"
         if [ $? -eq 0 ]; then
                 print_error "Error: '$1': Table already exist"
                 exit 1
