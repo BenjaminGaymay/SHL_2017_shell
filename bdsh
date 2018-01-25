@@ -13,6 +13,9 @@ OPTION:
 
 # > JSON BDD Path
 
+if [ -f "$HOME/.bdshrc" ]; then
+        BDD_FILE="$(cat $HOME/.bdshrc)"
+fi
 if [ -f ".bdshrc" ]; then
         BDD_FILE="$(cat .bdshrc)"
 fi
@@ -90,6 +93,10 @@ function get_value_from_table {
 }
 
 function select_db {
+    change_bdd_file
+    if [ $? == $FAILURE ]; then
+            return $FAILURE
+    fi
     if [ "$1" == "" ]; then
             print_error "$HELP"
             return $FAILURE
@@ -187,6 +194,11 @@ function find_db_value {
 function describe_db {
     DATABASE="desc_$1"
 
+    change_bdd_file
+    if [ $? == $FAILURE ]; then
+            return $FAILURE
+    fi
+
     database_in_file "$DATABASE"
     if [ $? == $FAILURE ]; then
         return $FAILURE
@@ -220,7 +232,7 @@ function main {
                   return $SUCCESS;;
             "-f") shift
                   BDD_FILE="$1"
-                  change_bdd_file "$1";;
+                  change_bdd_file;;
             "-j") ;;
             "select") shift
                       select_db "$@"
