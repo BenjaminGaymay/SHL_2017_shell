@@ -141,9 +141,9 @@ function select_db {
         elif [ $index == 0 ]; then
             first_line+="$(printf "%-${max_len[$index]}s  |" "${tables_arr[$index]}")"
         elif [ $index == "$(expr $i - 1)" ]; then
-            first_line+="$(printf "  %-${max_len[$index]}s" "${tables_arr[$index]}")"
+            first_line+="$(printf " %-${max_len[$index]}s" "${tables_arr[$index]}")"
         else
-            first_line+="$(printf "  %-${max_len[$index]}s  |" "${tables_arr[$index]}")"
+            first_line+="$(printf " %-${max_len[$index]}s  |" "${tables_arr[$index]}")"
         fi
         f=0
         for value in ${dict_value[$index]}; do
@@ -153,9 +153,9 @@ function select_db {
             elif [ $index == 0 ]; then
                 lines[$f]+="$(printf "%-${max_len[$index]}s  |" "$value")"
             elif [ $index == "$(expr $i - 1)" ]; then
-                lines[$f]+="$(printf "  %-${max_len[$index]}s" "$value")"
+                lines[$f]+="$(printf " %-${max_len[$index]}s" "$value")"
             else
-                lines[$f]+="$(printf "  %-${max_len[$index]}s  |" "$value")"
+                lines[$f]+="$(printf " %-${max_len[$index]}s  |" "$value")"
             fi
             let f++
         done
