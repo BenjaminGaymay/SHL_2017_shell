@@ -320,12 +320,12 @@ function new_table {
         if [ "$?" -eq 0 ]; then
                 find_end_table
                 if [ "$?" -eq 0 ]; then
-                    sed -i "/]$/c \ \t}],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                    sed -i "/]$/c \ \t}],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t\t{\n\t\t}\n\t]" "$BDD_FILE"
                 else
-                    sed -i "/]$/c \ \t],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                    sed -i "/]$/c \ \t],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t\t{\n\t\t}\n\t]" "$BDD_FILE"
                 fi
         else
-                sed -i "/{/a\ \t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                sed -i "/{/a\ \t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t\t{\n\t\t}\n\t]" "$BDD_FILE"
         fi
         create_table_attr "$@"
         exit $?
@@ -377,8 +377,10 @@ function insert_db {
         tmp_file="$(tail -n $len < $BDD_FILE)"
         first_bracket="$(expr $(grep -nwF "]" <<< $tmp_file | head -n 1 | cut -d ':' -f1) + $line_index - 1)"
 
-        sed -i "${first_bracket}c \ \t},\ \n{" "$BDD_FILE"
-
+        sed -i "${first_bracket}c \ \t\t}," "$BDD_FILE"
+        sed -i "${first_bracket}a \ \t\t{" "$BDD_FILE"
+        let first_bracket++
+        coma=1
         for a in "${desc_table[@]}"; do
                 new="\"$a\" : \"\""
                 for b in "${args[@]}"; do
@@ -388,10 +390,16 @@ function insert_db {
                                 new="\"$a\": \"$prop\""
                         fi
                 done
-                sed -i "${first_bracket}a \ \t$new" "$BDD_FILE"
+                if [ $coma == ${#desc_table[@]} ]; then
+                        sed -i "${first_bracket}a \ \t\t\t$new" "$BDD_FILE"
+                else
+                        sed -i "${first_bracket}a \ \t\t\t$new," "$BDD_FILE"
+
+        fi
                 let first_bracket++
+                let coma++
         done
-        sed -i "${first_bracket}a \}" "$BDD_FILE"
+        sed -i "${first_bracket}a \ \t\t}" "$BDD_FILE"
         exit $SUCCESS
 }
 
