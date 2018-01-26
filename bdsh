@@ -117,6 +117,9 @@ function select_db {
     i=0
     lines=()
     first_line=""
+    if [ $JSON == $SUCCESS ]; then
+            printf "%s\n" "{"
+    fi
     for table in $tables; do
         get_value_from_table "$table"
         if [ $? == $FAILURE ]; then
