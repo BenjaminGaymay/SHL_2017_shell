@@ -1,5 +1,0 @@
-#!/bin/bash
-
-function create_db {
-	printf "mdrlol"
-}
