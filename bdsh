@@ -210,7 +210,7 @@ function find_db_value {
             return $FAILURE
     fi
     START="$(grep -nwF -- "$DATABASE" < $BDD_FILE | cut -d ':' -f1)"
-    LEN="$(expr "$(wc -l < $BDD_FILE | cut -d ' ' -f1)" - $START)"
+    LEN="$(expr "$(wc -l < $BDD_FILE | cut -d ' ' -f1)" - $START + 1)"
     END="$(expr "$(tail -n $LEN < $BDD_FILE | grep -nwF "]" | cut -d ':' -f1 | head -n 1)" - 1)"
 
     DB_VALUE="$(tail -n $LEN < $BDD_FILE | head -n $END)"
@@ -351,7 +351,7 @@ function insert_db {
         if [ "$?" == $FAILURE ]; then
                 exit $FAILURE
         fi
-        
+
 }
 
 function main {
