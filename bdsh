@@ -162,7 +162,7 @@ function select_db {
     done
 
     printf "%s\n" "$first_line"
-    for ((i=0 ; i < ${#lines[0]} ; i++)); do
+    for ((i=-2 ; i < ${#lines[0]} ; i++)); do
         printf "-"
     done
     printf "\n"
