@@ -378,7 +378,6 @@ function insert_db {
         first_bracket="$(expr $(grep -nwF "]" <<< $tmp_file | head -n 1 | cut -d ':' -f1) + $line_index - 1)"
         DATABASE="data_$table_name"
         find_db_value
-        echo ${#DB_VALUE}
         if [ ${#DB_VALUE} -ne 0 ];then
                 sed -i "${first_bracket}c \ \t\t}," "$BDD_FILE"
         fi
