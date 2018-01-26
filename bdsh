@@ -351,7 +351,39 @@ function insert_db {
                 exit $FAILURE
         fi
         find_db_value
-        echo "$DB_VALUE"
+        table_name=$1
+        shift
+        args=()
+        attr=$(tr "," "\n" <<< $1)
+        for var in $attr
+        do
+                tmp="$(cut -d '=' -f1 <<< $var)"
+                args+=("$var")
+                grep -qwF "$tmp" <<< "$DB_VALUE"
+                if [ "$?" == $FAILURE ]; then
+                        print_error "Error: '$var' not in $BDD_FILE"
+                        exit "$FAILURE"
+                fi
+        done
+        desc_table=()
+        for var in $DB_VALUE
+        do
+                var="$(tr -d "\t, \"" <<< $var)"
+                desc_table+=($var)
+        done
+        for a in "${desc_table[@]}"; do
+                new="\"$a\" : \"\""
+                for b in "${args[@]}"; do
+                        tmp="$(cut -d '=' -f1 <<< $b)"
+                        if [ "$tmp" == "$a" ]; then
+                                prop="$(cut -d '=' -f2 <<< $b)"
+                                new="\"$a\": \"$prop\""
+                        fi
+                done
+                echo $new
+                # ADD TO THE FILE AND FINISHED
+        done
+
         exit $SUCCESS
 }
 
