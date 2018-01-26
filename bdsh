@@ -57,9 +57,9 @@ function database_in_file {
         return $FAILURE
     fi
 
-    grep -nwF "$1" <"$BDD_FILE" >/dev/null
+    grep -nwF "$DATABASE" <"$BDD_FILE" >/dev/null
     if [ $? == $FAILURE ]; then
-        print_error "Error: '$DATABASE' not in '$BDD_FILE'"
+        print_error "Error: '$1' not in '$BDD_FILE'"
         return $FAILURE
     fi
     return $SUCCESS
@@ -225,7 +225,7 @@ function describe_db {
             return $FAILURE
     fi
 
-    database_in_file "$DATABASE"
+    database_in_file "$1"
     if [ $? == $FAILURE ]; then
         return $FAILURE
     fi
