@@ -371,6 +371,14 @@ function insert_db {
                 var="$(tr -d "\t, \"" <<< $var)"
                 desc_table+=($var)
         done
+
+        line_index="$(grep -nwF "data_$table_name" < $BDD_FILE | cut -d ':' -f1)"
+        len=$(expr "$(wc -l -- $BDD_FILE | cut -d ' ' -f1)" - $line_index + 1)
+        tmp_file="$(tail -n $len < $BDD_FILE)"
+        first_bracket="$(expr $(grep -nwF "]" <<< $tmp_file | head -n 1 | cut -d ':' -f1) + $line_index - 1)"
+
+        sed -i "${first_bracket}c \ \t},\n{" "$BDD_FILE"
+
         for a in "${desc_table[@]}"; do
                 new="\"$a\" : \"\""
                 for b in "${args[@]}"; do
@@ -380,10 +388,9 @@ function insert_db {
                                 new="\"$a\": \"$prop\""
                         fi
                 done
-                echo $new
-                # ADD TO THE FILE AND FINISHED
+                sed -i "${first_bracket}a \ \t$new" "$BDD_FILE"
         done
-
+        sed -i "${first_bracket}a \}" "$BDD_FILE"
         exit $SUCCESS
 }
 
