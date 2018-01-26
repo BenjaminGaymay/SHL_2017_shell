@@ -57,9 +57,9 @@ function database_in_file {
         return $FAILURE
     fi
 
-    grep -nwF "$1" <"$BDD_FILE" >/dev/null
+    grep -nwF "$DATABASE" <"$BDD_FILE" >/dev/null
     if [ $? == $FAILURE ]; then
-        print_error "Error: '$DATABASE' not in '$BDD_FILE'"
+        print_error "Error: '$1' not in '$BDD_FILE'"
         return $FAILURE
     fi
     return $SUCCESS
@@ -117,9 +117,6 @@ function select_db {
     i=0
     lines=()
     first_line=""
-    if [ $JSON == $SUCCESS ]; then
-            printf "%s\n" "{"
-    fi
     for table in $tables; do
         get_value_from_table "$table"
         if [ $? == $FAILURE ]; then
@@ -322,6 +319,16 @@ function create_db {
         done
 }
 
+function insert_db {
+
+        DATABASE="desc_$1"
+        database_in_file "$1"
+        if [ "$?" == $FAILURE ]; then
+                exit $FAILURE
+        fi
+        
+}
+
 function main {
     while [ $# != 0 ]; do
         case "$1" in
@@ -342,7 +349,8 @@ function main {
                       fi;;
             "describe") shift
                         describe_db "$@";;
-            "insert") shift;;
+            "insert") shift
+                        insert_db "$@";;
             "create") shift
                         create_db "$@"
                         shift;;
