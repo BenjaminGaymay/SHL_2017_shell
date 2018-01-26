@@ -361,7 +361,7 @@ function insert_db {
                 args+=("$var")
                 grep -qwF "$tmp" <<< "$DB_VALUE"
                 if [ "$?" == $FAILURE ]; then
-                        print_error "Error: '$var' not in $BDD_FILE"
+                        print_error "Error: '$tmp' not in $BDD_FILE"
                         exit "$FAILURE"
                 fi
         done
