@@ -355,6 +355,7 @@ function insert_db {
         shift
         args=()
         attr=$(tr "," "\n" <<< $1)
+        attr=$(tr " " "^" <<< $attr)
         for var in $attr
         do
                 tmp="$(cut -d '=' -f1 <<< $var)"
@@ -365,6 +366,7 @@ function insert_db {
                         exit "$FAILURE"
                 fi
         done
+        attr=$(tr "^" " " <<< $attr)
         desc_table=()
         for var in $DB_VALUE
         do
