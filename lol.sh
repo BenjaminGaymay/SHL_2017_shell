@@ -200,9 +200,9 @@ function create_table_attr {
         while [ "$it" -ne 0 ]
         do
                 if [ "$last" == 0 ]; then
-                        sed -i "/desc_"$table_name"/a\ \t\t\""${my_array["$it"-1]}"\"" "$BDD_FILE"
+                        sed -i "/desc_"$table_name"\"/a\ \t\t\""${my_array["$it"-1]}"\"" "$BDD_FILE"
                 else
-                        sed -i "/desc_"$table_name"/a\ \t\t\""${my_array["$it"-1]}"\"\," "$BDD_FILE"
+                        sed -i "/desc_"$table_name"\"/a\ \t\t\""${my_array["$it"-1]}"\"\," "$BDD_FILE"
                 fi
                 last=1
                 ((it--))
