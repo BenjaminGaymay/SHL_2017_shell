@@ -117,6 +117,10 @@ function select_db {
     i=0
     lines=()
     first_line=""
+    if [ $JSON == $SUCCESS ]; then
+            printf "%s\n" "{"
+    fi
+
     for table in $tables; do
         get_value_from_table "$table"
         if [ $? == $FAILURE ]; then
@@ -124,9 +128,30 @@ function select_db {
         fi
         dict_value[$i]=${TABLE_VALUE[*]}
         tables_arr[$i]=$table
+        if [ $JSON == $SUCCESS ]; then
+                if [ $i != 0 ]; then
+                        printf ",\n"
+                fi
+                k=0
+                printf "\t\"%s\": [\n" "$table"
+                for l in "${TABLE_VALUE[@]}"; do
+                        if [ $k != 0 ]; then
+                                printf ",\n"
+                        fi
+                        l=${l%"\\\\"}
+                        printf "\t\t\"%s\"" "$l"
+                        let k++
+                done
+                printf "\n\t]"
+        fi
         lines[$i]=""
         let i++
     done
+
+    if [ $JSON == $SUCCESS ]; then
+            printf "\n%s\n" "}"
+            return $SUCCESS
+    fi
 
     f=0
     for index in "${!dict_value[@]}"; do
@@ -200,7 +225,7 @@ function describe_db {
             return $FAILURE
     fi
 
-    database_in_file "$DATABASE"
+    database_in_file "$1"
     if [ $? == $FAILURE ]; then
         return $FAILURE
     fi
