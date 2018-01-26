@@ -345,13 +345,14 @@ function create_db {
 }
 
 function insert_db {
-
         DATABASE="desc_$1"
         database_in_file "$1"
         if [ "$?" == $FAILURE ]; then
                 exit $FAILURE
         fi
-
+        find_db_value
+        echo "$DB_VALUE"
+        exit $SUCCESS
 }
 
 function main {
