@@ -285,11 +285,20 @@ function is_db_empty {
         return "$?"
 }
 
+function find_end_table {
+    cat "$BDD_FILE" | grep -q "}]$"
+}
+
 function new_table {
         check_table "$1"
         is_db_empty
         if [ "$?" -eq 0 ]; then
-                sed -i "/]$/c \ \t],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                find_end_table
+                if [ "$?" -eq 0 ]; then
+                    sed -i "/]$/c \ \t}],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                else
+                    sed -i "/]$/c \ \t],\ \n\t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
+                fi
         else
                 sed -i "/{/a\ \t\"desc_"$1"\": [\n\t],\n\t\"data_"$1"\": [\n\t]" "$BDD_FILE"
         fi
