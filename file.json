@@ -37,16 +37,9 @@
 			"id": "9",
 			"firstname": "",
 			"lastname": ""
- 	},
- 	"lastname": "4"
- 	"firstname" : ""
- 	"id": "2"
+ 	}
 	],
 	"data_age": [{
 		"id": "1",
- 	},
-}
- 	"age": "2"
- 	"id": "4"
-        }]
+ 	}]
 }

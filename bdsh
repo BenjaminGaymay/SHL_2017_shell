@@ -377,7 +377,7 @@ function insert_db {
         tmp_file="$(tail -n $len < $BDD_FILE)"
         first_bracket="$(expr $(grep -nwF "]" <<< $tmp_file | head -n 1 | cut -d ':' -f1) + $line_index - 1)"
 
-        sed -i "${first_bracket}c \ \t},\n{" "$BDD_FILE"
+        sed -i "${first_bracket}c \ \t},\ \n{" "$BDD_FILE"
 
         for a in "${desc_table[@]}"; do
                 new="\"$a\" : \"\""
@@ -389,6 +389,7 @@ function insert_db {
                         fi
                 done
                 sed -i "${first_bracket}a \ \t$new" "$BDD_FILE"
+                let first_bracket++
         done
         sed -i "${first_bracket}a \}" "$BDD_FILE"
         exit $SUCCESS
