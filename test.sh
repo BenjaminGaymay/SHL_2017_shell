@@ -7,9 +7,12 @@ echo -e "[ CREATE ]\n"
 
 rep=""
 while [ "$rep" == "" ]; do
-    read -p "Étape suivante ? (o/n/q) " rep; [ "$rep" = "o" ]
-    if [ "$rep" == "q" ]; then
+    read -p "Étape suivante ? (o/n) " rep
+    if [ "$rep" == "n" ]; then
        exit 0
+    fi
+    if [ "$rep" != "o" ]; then
+            rep=""
     fi
 done
 
@@ -24,9 +27,12 @@ echo -e "\n [ INSERT ]\n"
 
 rep=""
 while [ "$rep" == "" ]; do
-    read -p "Étape suivante ? (o/n/q) " rep; [ "$rep" = "o" ]
-    if [ "$rep" == "q" ]; then
+    read -p "Étape suivante ? (o/n) " rep
+    if [ "$rep" == "n" ]; then
        exit 0
+    fi
+    if [ "$rep" != "o" ]; then
+            rep=""
     fi
 done
 
@@ -36,9 +42,12 @@ echo -e "\n [ DESCRIBE ]\n"
 
 rep=""
 while [ "$rep" == "" ]; do
-    read -p "Étape suivante ? (o/n/q) " rep; [ "$rep" = "o" ]
-    if [ "$rep" == "q" ]; then
+    read -p "Étape suivante ? (o/n) " rep
+    if [ "$rep" == "n" ]; then
        exit 0
+    fi
+    if [ "$rep" != "o" ]; then
+            rep=""
     fi
 done
 
