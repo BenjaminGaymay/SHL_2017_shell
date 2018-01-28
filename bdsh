@@ -237,6 +237,7 @@ function describe_db {
     for line in $DB_VALUE; do
         line="$(echo $line | tr -d "\t, ")"
         if [[ $line =~ ^\".*\"$ ]]; then
+                line="$(tr -d "\"" <<< $line )"
                 printf "%s\n" "$line"
         fi
     done
