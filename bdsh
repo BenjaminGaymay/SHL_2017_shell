@@ -59,7 +59,7 @@ function database_in_file {
 
     grep -nwF "$DATABASE" <"$BDD_FILE" >/dev/null
     if [ $? == $FAILURE ]; then
-        print_error "Error: '$1' not in '$BDD_FILE'"
+        print_error "Error: '$1' not in '$BDD_FILE'."
         return $FAILURE
     fi
     return $SUCCESS
@@ -231,8 +231,14 @@ function describe_db {
     fi
 
     find_db_value "$DATABASE"
+    if [ $? == $FAILURE ];then
+            return  $FAILURE
+    fi
     for line in $DB_VALUE; do
-        printf "%s\n" "$(echo $line | tr -d "\t, \"")"
+        line="$(echo $line | tr -d "\t, ")"
+        if [[ $line =~ ^\".*\"$ ]]; then
+                printf "%s\n" "$line"
+        fi
     done
     return $SUCCESS
 }
@@ -427,7 +433,10 @@ function main {
                               shift
                       fi;;
             "describe") shift
-                        describe_db "$@";;
+                        describe_db "$@"
+                        if [ $? == $FAILURE ]; then
+                                return $FAILURE
+                        fi;;
             "insert") shift
                         insert_db "$@";;
             "create") shift
